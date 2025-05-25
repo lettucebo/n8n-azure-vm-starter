@@ -1,19 +1,16 @@
 #!/bin/bash
 
 # Variables
-RESOURCE_GROUP="n8n-rg"
-LOCATION="eastus"
+RESOURCE_GROUP="n8n"
+LOCATION="eastasia"
 VM_NAME="n8n-vm"
-ADMIN_USERNAME="n8nadmin"
+read -p "Enter admin username: " ADMIN_USERNAME
 DNS_PREFIX="n8n-$(date +%s | cut -c6-10)"
+read -s -p "Enter admin password: " PASSWORD
+echo
 
 # Create resource group
 az group create --name $RESOURCE_GROUP --location $LOCATION
-
-# Generate SSH key if it doesn't exist
-if [ ! -f ~/.ssh/id_rsa_n8n ]; then
-    ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/id_rsa_n8n
-fi
 
 # Deploy the VM
 az deployment group create \
@@ -22,7 +19,7 @@ az deployment group create \
   --parameters \
     vmName=$VM_NAME \
     adminUsername=$ADMIN_USERNAME \
-    adminPasswordOrKey="$(cat ~/.ssh/id_rsa_n8n.pub)" \
+    adminPasswordOrKey=$PASSWORD \
     dnsLabelPrefix=$DNS_PREFIX
 
 # Get the VM's public IP
